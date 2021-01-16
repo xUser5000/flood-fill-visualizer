@@ -23,41 +23,51 @@ function setup() {
     }
 }
 
+let di = [1, -1, 0, 0];
+let dj = [0, 0, 1, -1];
+let stack = [];     // The stack of the cells to be visited
 function draw () {
+    frameRate(50);
     background(255);
     if (state === 0 && mouseIsPressed && isInside(mouseX, mouseY)) {
         let [i, j] = getCell(mouseX, mouseY);
         grid[i][j] = -1;
     }
+    if (state === 1) {
+        frameRate(10);
+        let f = false;
+        if (stack.length === 0) {
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    if (isValid(i, j)) {
+                            stack.push([i, j]);
+                            f = true;
+                            break;
+                    }
+                }
+            }
+        } else f = true;
+
+        if (!f) {
+            state = 0;
+        } else {
+            let node = stack[stack.length - 1];
+            let i = node[0], j = node[1];
+            grid[i][j] = 1;
+            stack.pop();
+            for (let k = 0; k < 4; k++) {
+                let a = i + di[k];
+                let b = j + dj[k];
+                if (isValid(a, b)) stack.push([a, b]);
+            }
+        }
+
+    }
     drawGrid();
 }
 
-async function run () {
+function run () {
     state = 1;
-    for (let i = 0; i < 10; i++) {
-        for (let j = 0; j < 10; j++) {
-            if (isValid(i, j)) await floodFill(i, j);
-        }
-    }
-    state = 0;
-}
-
-/**
- * The recursive flood fill algorithm
- */
-let di = [1, -1, 0, 0];
-let dj = [0, 0, 1, -1];
-let delay = 100;
-async function floodFill (i, j) {
-    grid[i][j] = 1;
-    for (let k = 0; k < 4; k++) {
-        let a = i + di[k];
-        let b = j + dj[k];
-        if (isValid(a, b)) {
-            await sleep(delay);
-            floodFill(a, b);
-        }
-    }
 }
 
 function isValid (i, j) {
@@ -142,11 +152,4 @@ function randomize () {
             cnt--;
         }
     }
-}
-
-/**
- * Utility sleep function
- */
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
