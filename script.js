@@ -34,7 +34,7 @@ function draw () {
         grid[i][j] = -1;
     }
     if (state === 1) {
-        frameRate(10);
+        frameRate(20);
         let f = false;
         if (stack.length === 0) {
             for (let i = 0; i < rows; i++) {
